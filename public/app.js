@@ -1,1 +1,17 @@
-
+let token=localStorage.token||"";const $=id=>document.getElementById(id);
+async function api(url,opt={}){opt.headers={...(opt.headers||{}),"Content-Type":"application/json",Authorization:`Bearer ${token}`};let r=await fetch(url,opt);if(r.status===401){logout();throw Error("auth")}let j=await r.json().catch(()=>({}));if(!r.ok)throw Error(j.error||"error");return j}
+async function setupAdmin(){try{let r=await fetch("/api/setup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$("setupuser").value,password:$("setuppass").value})});let j=await r.json();if(!r.ok)throw Error(j.error);$("setup").classList.add("hidden");$("login").classList.remove("hidden");$("user").value=$("setupuser").value;$("pass").focus()}catch(e){$("setuperr").textContent=e.message||"خطا"}}
+async function checkSetup(){try{let s=await fetch("/api/setup").then(r=>r.json());if(s.needsSetup){$("login").classList.add("hidden");$("setup").classList.remove("hidden")}}catch{}}
+async function login(){try{let r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$("user").value,password:$("pass").value})});let j=await r.json();if(!r.ok)throw Error();token=j.token;localStorage.token=token;show()}catch{$("err").textContent="اطلاعات ورود صحیح نیست."}}
+function logout(){localStorage.removeItem("token");token="";$("app").classList.add("hidden");$("login").classList.remove("hidden")}
+async function show(){$("login").classList.add("hidden");$("app").classList.remove("hidden");await refresh()}
+async function refresh(){let [s,c]=await Promise.all([api("/api/status"),api("/api/clients")]);$("count").textContent=s.clients;$("core").textContent=s.xrayEnabled?"ONLINE":"CONFIG";$("proto").textContent=s.protocol.toUpperCase();$("endpoint").textContent=s.publicHost+":"+s.publicPort;$("clients").innerHTML=c.length?c.map(x=>`<div class="client ${x.enabled?"":"off"}"><div class="meta"><span class="badge">${x.protocol.toUpperCase()}</span><div><b>${esc(x.name)}</b><div style="color:#647084;font-size:11px;margin-top:5px">${x.uuid}</div></div></div><div class="actions"><button onclick="copyLink('${x.id}')">کپی لینک</button><button onclick="copySub('${x.id}')">Subscription</button><button onclick="qr('${x.id}')">QR</button><button class="ghost" onclick="toggle('${x.id}',${!x.enabled})">${x.enabled?"غیرفعال":"فعال"}</button><button class="danger" onclick="del('${x.id}')">حذف</button></div></div>`).join(""):`<div class="empty">هنوز کاربری ساخته نشده است.</div>`}
+function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function openModal(){$("modal").classList.remove("hidden")}function closeModal(){$("modal").classList.add("hidden")}
+async function createClient(){await api("/api/clients",{method:"POST",body:JSON.stringify({name:$("name").value,protocol:$("protocol").value})});$("name").value="";closeModal();refresh()}
+async function copyLink(id){let x=await api(`/api/clients/${id}/link`);await navigator.clipboard.writeText(x.link);alert("لینک کپی شد")}
+async function copySub(id){let x=await api(`/api/clients/${id}/sub`);await navigator.clipboard.writeText(x.url);alert("لینک Subscription کپی شد")}
+async function qr(id){let x=await api(`/api/clients/${id}/qr`);$("qr").src=x.dataUrl;$("qrmodal").classList.remove("hidden")}
+async function toggle(id,enabled){await api(`/api/clients/${id}`,{method:"PATCH",body:JSON.stringify({enabled})});refresh()}
+async function del(id){if(confirm("حذف شود؟")){await api(`/api/clients/${id}`,{method:"DELETE"});refresh()}}
+if(token)show();else checkSetup();
