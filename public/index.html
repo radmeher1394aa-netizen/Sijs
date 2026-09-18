@@ -1,1 +1,11 @@
-
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XRail Panel</title><link rel="stylesheet" href="/style.css"></head><body>
+<div class="orb a"></div><div class="orb b"></div>
+<section id="setup" class="login card hidden"><div class="logo">X</div><h1>راه‌اندازی اولیه</h1><p>فقط یک‌بار حساب مدیر را بساز.</p><input id="setupuser" placeholder="نام کاربری" value="admin"><input id="setuppass" type="password" placeholder="رمز حداقل ۸ کاراکتر"><button onclick="setupAdmin()">ساخت مدیر</button><small id="setuperr"></small></section><section id="login" class="login card"><div class="logo">X</div><h1>XRail Panel</h1><p>کنترل‌پنل مینیمال Xray برای Railway</p><input id="user" placeholder="نام کاربری" value="admin"><input id="pass" type="password" placeholder="رمز عبور"><button onclick="login()">ورود به پنل</button><small id="err"></small></section>
+<div id="app" class="shell hidden"><aside><div class="brand"><b>XRail</b><span>CONTROL PLANE</span></div><nav><a class="on">◈ داشبورد</a><a>◎ کاربران</a><a>⌁ اشتراک‌ها</a><a>⚙ تنظیمات</a></nav><div class="rail">RAILWAY READY</div></aside>
+<main><header><div><h2>داشبورد شبکه</h2><p>مدیریت کاربران، لینک‌ها و subscription</p></div><button class="ghost" onclick="logout()">خروج</button></header>
+<div class="stats"><article><span>کاربران</span><strong id="count">0</strong><i>ACTIVE RECORDS</i></article><article><span>Xray Core</span><strong id="core">—</strong><i id="proto">PROTOCOL</i></article><article><span>TCP Endpoint</span><strong class="endpoint" id="endpoint">—</strong><i>RAILWAY PROXY</i></article></div>
+<section class="panel"><div class="panelhead"><div><h3>کاربران و کانفیگ‌ها</h3><p>برای هر کاربر لینک اتصال و Subscription اختصاصی بساز.</p></div><button onclick="openModal()">＋ کاربر جدید</button></div><div id="clients"></div></section>
+</main></div>
+<div id="modal" class="modal hidden"><div class="card modalbox"><h3>ساخت کاربر جدید</h3><input id="name" placeholder="نام کاربر"><select id="protocol"><option value="vless">VLESS</option><option value="vmess">VMess</option><option value="trojan">Trojan</option></select><div class="row"><button onclick="createClient()">ساخت</button><button class="ghost" onclick="closeModal()">انصراف</button></div></div></div>
+<div id="qrmodal" class="modal hidden"><div class="card modalbox center"><img id="qr"><button class="ghost" onclick="qrmodal.classList.add('hidden')">بستن</button></div></div>
+<script src="/app.js"></script></body></html>
